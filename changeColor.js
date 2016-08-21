@@ -17,6 +17,23 @@ var updateColors = function(newIdx) {
   localStorage.colorGit = newIdx;
 }
 
+var updateReponameColors = function(newIdx) {
+    var newColors = colors[newIdx];
+    var repoNames = document.getElementsByClassName('repo js-repo');
+    for (var i = 0; i < repoNames.length; i += 1) {
+        repoNames[i].style.color = newColors[2];
+    }
+}
+
+var updateContributionColors = function(newIdx) {
+    var newColors = colors[newIdx];
+    var contributionActivity = document.getElementsByClassName('simple-conversation-list');
+    var contributionNames = document.getElementsByClassName('title');
+    for (var i = 0; i < contributionNames.length; i += 1) {
+        contributionNames[i].style.color = newColors[2];
+    }
+}
+
 // Initialize
 var idx = localStorage.colorGit;
 if (idx === undefined) { idx = 0; }
@@ -24,13 +41,21 @@ idx *= 1;
 
 $('#js-pjax-container').bind("DOMSubtreeModified", function() {
   if ($('.contributions-tab').length == 1) {
-      try { updateColors(idx); } catch(err) { }
+      try {
+          updateColors(idx);
+          updateReponameColors(idx);
+          updateContributionColors(idx);
+      } catch(err) { }
   }
 });
 
 updateColors(idx);
+updateReponameColors(idx);
+updateContributionColors(idx);
 
-chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) { 
+chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
   var value = request.value * 1;
   updateColors(value);
+  updateReponameColors(value);
+  updateContributionColors(value);
 });
