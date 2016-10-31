@@ -4,14 +4,21 @@ var colors = [
     [ '#ff5675', '#ff6a89', '#ff88a7', '#ffb0cf', '#eee' ],
     [ '#0048cc', '#148cff', '#3cb4ff', '#5adeff', '#eee' ],
     [ '#9932cc', '#ad46e0', '#c15af4', '#ff9dff', '#eee' ],
+    [ '#03001c', '#fe9600', '#ffc501', '#ffee4a', '#eee' ],
 ];
 
 var updateColors = function(newIdx) {
   var originColors = colors[originIdx];
   var newColors = colors[newIdx];
-  for (var i = 0; i < originColors.length; i += 1) {
-      $('.day[fill='+originColors[i] + ']').attr('fill', newColors[i]);
-      $('.contrib-legend .legend li').eq(4-i).css('background-color', newColors[i]);
+  var originGraph = $('div.js-calendar-graph > svg > g g');
+  for (var i = 0; i < originGraph.length; i += 1) {
+      var rectList = $('div.js-calendar-graph > svg > g > g:nth-child('+(i+1)+') rect');
+      for (var j = 0; j < rectList.length; j += 1) {
+        var origin = $('div.js-calendar-graph > svg > g > g:nth-child('+(i+1)+') > rect:nth-child('+(j+1)+')');
+        var original = origin.attr('fill');
+        var newColorIdx = originColors.indexOf(original);
+        origin.attr('fill', newColors[newColorIdx]);
+      }
   }
   originIdx = newIdx;
   localStorage.colorGit = newIdx;
@@ -19,17 +26,9 @@ var updateColors = function(newIdx) {
 
 var updateReponameColors = function(newIdx) {
     var newColors = colors[newIdx];
-    var repoNames = document.getElementsByClassName('repo js-repo');
+    var repoNames = $('a.text-bold');
     for (var i = 0; i < repoNames.length; i += 1) {
-        repoNames[i].style.color = newColors[2];
-    }
-}
-
-var updateContributionColors = function(newIdx) {
-    var newColors = colors[newIdx];
-    var contributionNames = $('ul.simple-conversation-list a');
-    for (var i = 0; i < contributionNames.length; i += 1) {
-        contributionNames[i].style.color = newColors[2];
+        repoNames[i].style.color = newColors[1];
     }
 }
 
@@ -43,18 +42,15 @@ $('#js-pjax-container').bind("DOMSubtreeModified", function() {
       try {
           updateColors(idx);
           updateReponameColors(idx);
-          updateContributionColors(idx);
       } catch(err) { }
   }
 });
 
 updateColors(idx);
 updateReponameColors(idx);
-updateContributionColors(idx);
 
 chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
   var value = request.value * 1;
   updateColors(value);
   updateReponameColors(value);
-  updateContributionColors(value);
 });
